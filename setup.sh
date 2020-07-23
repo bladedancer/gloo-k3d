@@ -73,12 +73,14 @@ echo ===    Gloo        ===
 echo ======================
 kubectl create namespace gloo-system
 helm install --name gloo gloo/gloo --namespace gloo-system --set crds.create=true
-while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 3; done
+#while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 3; done
 kubectl apply -f gateway-proxy-deployment.yaml
 sleep 10
-while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 3; done
+while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 10; done
 
 glooctl add route --name prodpage --namespace gloo-system --path-prefix / --dest-name default-productpage-9080 --dest-namespace gloo-system
+while [[ $(kubectl -n gloo-system get virtualservice/prodpage -o 'jsonpath={..status.subresource_statuses..state}') != "1" ]]; do echo "waiting for virtualservice" && sleep 3; done
+
 HTTP_GW=$(glooctl proxy url)
 ## Open the ingress url in the browser:
 $([ "$(uname -s)" = "Linux" ] && echo xdg-open || echo open) $HTTP_GW/productpage
