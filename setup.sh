@@ -55,3 +55,13 @@ echo ===    Gloo        ===
 echo ======================
 kubectl create namespace gloo-system
 helm install --name gloo gloo/gloo --namespace gloo-system --set crds.create=true
+
+echo ======================
+echo ===    Done        ===
+echo ======================
+echo To conenct to the cluster run:
+echo export KUBECONFIG="$(k3d get-kubeconfig --name='gloo')"
+echo
+echo To install the glooctl client
+echo curl -sL https://run.solo.io/gloo/install | sh
+echo export PATH=$HOME/.gloo/bin:$PATH
