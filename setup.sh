@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 echo ======================
 echo === Create Cluster ===
 echo ======================
@@ -45,6 +46,23 @@ helm repo add gloo https://storage.googleapis.com/solo-public-helm
 helm repo up
 
 echo ======================
+echo === Download Istio ===
+echo ======================
+if [ ! -d istio-1.6.5 ]; then
+  curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.6.5 sh -
+  cd istio-1.6.5
+fi
+export PATH=$PWD/bin:$PATH
+istioctl install --set profile=demo
+kubectl label namespace default istio-injection=enabled
+
+echo =======================
+echo === Deploy BookInfo ===
+echo =======================
+kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+cd ..
+
+echo ======================
 echo ===    Wait     ===
 echo ======================
 
@@ -55,6 +73,13 @@ echo ===    Gloo        ===
 echo ======================
 kubectl create namespace gloo-system
 helm install --name gloo gloo/gloo --namespace gloo-system --set crds.create=true
+while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 3; done
+kubectl apply -f gateway-proxy-deployment.yaml
+
+glooctl add route --name prodpage --namespace gloo-system --path-prefix / --dest-name default-productpage-9080 --dest-namespace gloo-system
+HTTP_GW=$(glooctl proxy url)
+## Open the ingress url in the browser:
+$([ "$(uname -s)" = "Linux" ] && echo xdg-open || echo open) $HTTP_GW/productpage
 
 echo ======================
 echo ===    Done        ===
@@ -63,5 +88,6 @@ echo To conenct to the cluster run:
 echo export KUBECONFIG="$(k3d get-kubeconfig --name='gloo')"
 echo
 echo To install the glooctl client
-echo curl -sL https://run.solo.io/gloo/install | sh
+echo curl -sL https://run.solo.io/gloo/install \| sh
 echo export PATH=$HOME/.gloo/bin:$PATH
+
