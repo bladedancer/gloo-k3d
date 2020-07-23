@@ -50,8 +50,8 @@ echo === Download Istio ===
 echo ======================
 if [ ! -d istio-1.6.5 ]; then
   curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.6.5 sh -
-  cd istio-1.6.5
 fi
+cd istio-1.6.5
 export PATH=$PWD/bin:$PATH
 istioctl install --set profile=demo
 kubectl label namespace default istio-injection=enabled
@@ -75,6 +75,8 @@ kubectl create namespace gloo-system
 helm install --name gloo gloo/gloo --namespace gloo-system --set crds.create=true
 while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 3; done
 kubectl apply -f gateway-proxy-deployment.yaml
+sleep 10
+while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 3; done
 
 glooctl add route --name prodpage --namespace gloo-system --path-prefix / --dest-name default-productpage-9080 --dest-namespace gloo-system
 HTTP_GW=$(glooctl proxy url)
@@ -89,5 +91,5 @@ echo export KUBECONFIG="$(k3d get-kubeconfig --name='gloo')"
 echo
 echo To install the glooctl client
 echo curl -sL https://run.solo.io/gloo/install \| sh
-echo export PATH=$HOME/.gloo/bin:$PATH
+echo export PATH=\$HOME/.gloo/bin:\$PATH
 
