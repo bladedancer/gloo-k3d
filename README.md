@@ -23,3 +23,8 @@ It'll generally be faster to stop and start the cluster rather than tear it down
 ## Connect to BookInfo
 
     $([ "$(uname -s)" = "Linux" ] && echo xdg-open || echo open) $(glooctl proxy url)/productpage
+
+## All env
+
+    export KUBECONFIG="$(k3d get-kubeconfig --name='gloo')"
+    export PATH=$HOME/.gloo/bin:$PATH
