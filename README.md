@@ -14,7 +14,7 @@ It'll generally be faster to stop and start the cluster rather than tear it down
 ## Install glooctl
 
     curl -sL https://run.solo.io/gloo/install | sh
-    echo export PATH=$HOME/.gloo/bin:$PATH
+    export PATH=$HOME/.gloo/bin:$PATH
 
 ## Connect to cluster
 
