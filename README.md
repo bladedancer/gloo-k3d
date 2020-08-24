@@ -1,6 +1,11 @@
-# Istio and Gloo in K3d
+# Istio and Gloo in K3d (v3)
 
 This is just for testing and investigation. It creates a cluster that contains Istio and Gloo. It also installs the bookinfo demo.
+
+## Prequisites
+
+- k3d v3+
+- helm v3+
 
 ## Usage
 
@@ -18,7 +23,7 @@ It'll generally be faster to stop and start the cluster rather than tear it down
 
 ## Connect to cluster
 
-    export KUBECONFIG="$(k3d get-kubeconfig --name='gloo')"
+    export KUBECONFIG=$(k3d kubeconfig write gloo)
 
 ## Connect to BookInfo
 
@@ -26,5 +31,5 @@ It'll generally be faster to stop and start the cluster rather than tear it down
 
 ## All env
 
-    export KUBECONFIG="$(k3d get-kubeconfig --name='gloo')"
+    export KUBECONFIG=$(k3d kubeconfig write gloo)
     export PATH=$HOME/.gloo/bin:$PATH
