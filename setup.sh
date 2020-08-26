@@ -64,6 +64,7 @@ echo ======================
 kubectl create namespace gloo-system
 helm install gloo gloo/gloo --namespace gloo-system --set gateway.enabled=true,ingress.enabled=true
 
+kubectl apply -f gateway-proxy-envoy-config-configmap.yaml
 kubectl apply -f gateway-proxy-deployment.yaml
 sleep 10
 while [[ $(kubectl -n gloo-system get pods -l gloo=gateway-proxy -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for Gloo" && sleep 10; done
